@@ -21,16 +21,16 @@
           xmlns:h="http://java.sun.com/jsf/html"
           xmlns:f="http://xmlns.jcp.org/jsf/core"
           xmlns:wb="http://xmlns.jcp.org/jsf/composite/webbudget/ui"
-          id="closingConfirmationDialog"
+          id="reopeningConfirmationDialog"
           width="500"
           modal="true"
           closable="true"
           resizable="false"
           closeOnEscape="true"
-          widgetVar="dialogClosingConfirmation"
-          header="#{messages['closing.dialog.title']}">
+          widgetVar="dialogReopeningConfirmation"
+          header="#{messages['reopening.dialog.title']}">
 
-    <h:form id="closingConfirmationForm">
+    <h:form id="reopeningForm">
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <p:messages id="messages" closable="true" />
@@ -40,25 +40,25 @@
             <div class="col-sm-12 form-group">
                 <h4>
                     <o:outputFormat escape="false"
-                                    value="#{messages['closing.dialog.message']}">
-                        <f:param value="#{closingBean.financialPeriod.identification}"/>
+                                    value="#{messages['reopening.dialog.message']}">
+                        <f:param value="#{financialPeriodBean.value.identification}"/>
                     </o:outputFormat>
                 </h4>
             </div>
             <div class="col-sm-12 text-right">
-                <p:commandButton value="#{menu['yes']}"
+                <p:commandButton update="itemsList"
+                                 value="#{menu['yes']}"
                                  styleClass="btn btn-flat btn-success"
                                  onstart="PF('confirmationBlocker').show()"
-                                 actionListener="#{closingBean.doClosing()}"
                                  oncomplete="PF('confirmationBlocker').hide()"
-                                 update="closingConfirmationForm closingResumeBox controlsBox"/>
+                                 actionListener="#{financialPeriodBean.doReopening()}"/>
                 <p:spacer width="5"/>
                 <p:commandButton value="#{menu['no']}"
                                  styleClass="btn btn-flat btn-primary"
-                                 onclick="PF('dialogClosingConfirmation').hide()"/>
+                                 onclick="PF('dialogReopeningConfirmation').hide()"/>
             </div>
         </div>
     </h:form>
-    <wb:blocker name="confirmationBlocker"
-                target="closingConfirmationForm"/>
+    <wb:blocker target="reopeningForm"
+                name="confirmationBlocker"/>
 </p:dialog>
