@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Arthur Gregorio, AG.Software
+ * Copyright (C) 2014 Arthur Gregorio, AG.Software
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import br.com.webbudget.application.components.ui.table.LazyModel;
 import br.com.webbudget.application.components.ui.table.Page;
 import br.com.webbudget.domain.entities.registration.FinancialPeriod;
 import br.com.webbudget.domain.repositories.registration.FinancialPeriodRepository;
+import br.com.webbudget.domain.services.ClosingService;
 import br.com.webbudget.domain.services.FinancialPeriodService;
 import lombok.Getter;
 import org.primefaces.model.LazyDataModel;
@@ -49,6 +50,8 @@ import static br.com.webbudget.application.components.ui.NavigationManager.Param
 @ViewScoped
 public class FinancialPeriodBean extends FormBean<FinancialPeriod> implements LazyDataProvider<FinancialPeriod> {
 
+    private long periodToReopen;
+
     @Getter
     private boolean hasOpenPeriod;
 
@@ -58,6 +61,8 @@ public class FinancialPeriodBean extends FormBean<FinancialPeriod> implements La
     @Getter
     private LazyDataModel<FinancialPeriod> dataModel;
 
+    @Inject
+    private ClosingService closingService;
     @Inject
     private FinancialPeriodService financialPeriodService;
 
@@ -146,6 +151,24 @@ public class FinancialPeriodBean extends FormBean<FinancialPeriod> implements La
     }
 
     /**
+     * Reopen a {@link FinancialPeriod}
+     */
+    public void doReopening() {
+        this.closingService.reopen(this.value);
+        this.updateComponent("itemsList");
+        this.closeDialog("dialogReopeningConfirmation");
+        this.addInfo(true, "info.financial-period.reopened", this.value.getIdentification());
+        this.updateComponent("messages");
+    }
+
+    /**
+     * Display a message to the user asking if he wants to reopen the {@link FinancialPeriod}
+     */
+    public void showReopenConfirmationDialog() {
+        this.updateAndOpenDialog("reopeningConfirmationDialog", "dialogReopeningConfirmation");
+    }
+
+    /**
      * Helper method to navigate to the closing page of the selected {@link FinancialPeriod}
      *
      * @param financialPeriodId the id of the selected {@link FinancialPeriod}
@@ -153,6 +176,17 @@ public class FinancialPeriodBean extends FormBean<FinancialPeriod> implements La
      */
     public String changeToClosing(long financialPeriodId) {
         return this.navigation.to("/secured/financial/closing/formClosing.xhtml",
+                of("id", financialPeriodId));
+    }
+
+    /**
+     * Helper method used to redirect to the statistics page
+     *
+     * @param financialPeriodId the id of the selected {@link FinancialPeriod}
+     * @return the outcome to the statistics page
+     */
+    public String changeToStatistics(long financialPeriodId) {
+        return this.navigation.to("/secured/registration/financialPeriod/financialPeriodStatistics.xhtml",
                 of("id", financialPeriodId));
     }
 

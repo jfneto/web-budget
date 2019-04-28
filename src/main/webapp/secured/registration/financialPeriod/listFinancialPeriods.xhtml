@@ -139,21 +139,21 @@
                             #{financialPeriod.identification}
                         </p:column>
                         <p:column width="12%"
-                                  styleClass="align-center"
+                                  styleClass="text-center"
                                   headerText="#{messages['financial-period.list.start']}">
                             <h:outputText value="#{financialPeriod.start}">
                                 <f:converter converterId="localDateConverter"/>
                             </h:outputText>
                         </p:column>
                         <p:column width="12%"
-                                  styleClass="align-center"
+                                  styleClass="text-center"
                                   headerText="#{messages['financial-period.list.end']}">
                             <h:outputText value="#{financialPeriod.end}">
                                 <f:converter converterId="localDateConverter"/>
                             </h:outputText>
                         </p:column>
                         <p:column width="12%"
-                                  styleClass="align-center"
+                                  styleClass="text-center"
                                   headerText="#{messages['financial-period.list.closing-date']}">
                             <h:outputText rendered="#{financialPeriod.closed eq true}"
                                           value="#{financialPeriod.closing.closingDate}">
@@ -163,7 +163,7 @@
                                           rendered="#{not financialPeriod.closed}"/>
                         </p:column>
                         <p:column width="12%"
-                                  styleClass="align-center"
+                                  styleClass="text-center"
                                   headerText="#{messages['financial-period.list.result']}">
                             <h:outputText rendered="#{financialPeriod.closed}"
                                           value="#{financialPeriod.accumulated}"
@@ -173,15 +173,15 @@
                             <h:outputText value="#{messages['no-data']}"
                                           rendered="#{not financialPeriod.closed}"/>
                         </p:column>
-
                         <p:column width="15%"
-                                  styleClass="align-center"
+                                  styleClass="text-center"
                                   headerText="#{messages['list.actions']}">
-                            <p:commandButton icon="fa fa-search"
-                                             title="#{menu['detail']}"
+                            <p:commandButton icon="fa fa-chart-line"
+                                             title="#{menu['statistics']}"
                                              styleClass="btn btn-flat btn-default"
-                                             action="#{financialPeriodBean.changeToDetail(financialPeriod.id)}"
-                                             rendered="#{financialPeriod.closed and userSessionBean.isPermitted(permissions.FINANCIAL_PERIOD_DETAIL)}"/>
+                                             action="#{financialPeriodBean.changeToStatistics(financialPeriod.id)}"/>
+                            <p:spacer width="5"
+                                      rendered="#{not financialPeriod.closed and userSessionBean.isPermitted(permissions.CLOSING_ACCESS)}"/>
                             <p:commandButton icon="fa fa-calculator"
                                              title="#{menu['close-period']}"
                                              styleClass="btn btn-flat btn-default"
