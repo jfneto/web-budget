@@ -45,15 +45,14 @@ public class RecoverPasswordBean extends AbstractBean {
     private RecoverPasswordService recoverPasswordService;
 
     /**
-     * Call the service to reset the user password
+     * Call the service to reset the password
      */
     public void recoverPassword() {
 
-        this.recoverPasswordService.recover(this.email);
+//        this.recoverPasswordService.recover(this.email);
 
         this.closeDialog("dialogRecoverPassword");
         this.addInfoAndKeep("recover-password.email-sent");
-        this.temporizeHiding("messages");
     }
 
     /**

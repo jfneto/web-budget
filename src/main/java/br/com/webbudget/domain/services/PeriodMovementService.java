@@ -22,10 +22,7 @@ import br.com.webbudget.domain.entities.financial.PeriodMovement;
 import br.com.webbudget.domain.entities.financial.ReasonType;
 import br.com.webbudget.domain.entities.financial.WalletBalance;
 import br.com.webbudget.domain.entities.registration.Wallet;
-import br.com.webbudget.domain.events.CreatePeriodMovement;
-import br.com.webbudget.domain.events.DeletePeriodMovement;
-import br.com.webbudget.domain.events.PeriodMovementDeleted;
-import br.com.webbudget.domain.events.UpdateWalletBalance;
+import br.com.webbudget.domain.events.*;
 import br.com.webbudget.domain.exceptions.BusinessLogicException;
 import br.com.webbudget.domain.logics.financial.movement.period.PeriodMovementDeletingLogic;
 import br.com.webbudget.domain.logics.financial.movement.period.PeriodMovementSavingLogic;
@@ -66,6 +63,9 @@ public class PeriodMovementService {
     @Inject
     @PeriodMovementDeleted
     private Event<PeriodMovement> periodMovementDeletedEvent;
+    @Inject
+    @PeriodMovementUpdated
+    private Event<PeriodMovement> periodMovementUpdatedEvent;
 
     @Any
     @Inject
@@ -120,6 +120,9 @@ public class PeriodMovementService {
             apportionment.setMovement(saved);
             this.apportionmentRepository.save(apportionment);
         });
+
+        // fire an event telling about the update
+        this.periodMovementUpdatedEvent.fire(saved);
 
         return saved;
     }
@@ -184,8 +187,14 @@ public class PeriodMovementService {
         final WalletBalanceBuilder builder = WalletBalanceBuilder.getInstance()
                 .to(wallet)
                 .forMovement(periodMovement.getCode())
-                .withReason(ReasonType.RETURN)
-                .value(periodMovement.getPayment().getPaidValue());
+                .withReason(ReasonType.RETURN);
+
+        // if is revenue, subtract, if not, add
+        if (periodMovement.isRevenue()) {
+            builder.value(periodMovement.getPayment().getPaidValue().negate());
+        } else {
+            builder.value(periodMovement.getPayment().getPaidValue());
+        }
 
         this.updateWalletBalanceEvent.fire(builder.build());
     }

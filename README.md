@@ -22,4 +22,4 @@ If you want to know more about, please, access the oficial project page in [http
 
 ### If you want to try the project:
 
-Use our docker image! More information and a how-to to deploy the image can be [found here](https://github.com/arthurgregorio/web-budget-docker).
+Use our docker image! More information and how-to to deploy it can be [found here](https://github.com/arthurgregorio/web-budget-docker).

@@ -1,5 +1,5 @@
 <!--
-  Copyright (C) 2015 Arthur Gregorio, AG.Software
+  Copyright (C) 2014 Arthur Gregorio, AG.Software
  
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -186,9 +186,9 @@
                                          value="#{menu['edit']}"
                                          styleClass="btn btn-flat btn-success"
                                          action="#{periodMovementBean.changeToEdit(periodMovementBean.value.id)}"
-                                         rendered="#{periodMovementBean.value.open and userSessionBean.isPermitted(permissions.PERIOD_MOVEMENT_UPDATE)}"/>
+                                         rendered="#{not periodMovementBean.value.accounted and userSessionBean.isPermitted(permissions.PERIOD_MOVEMENT_UPDATE)}"/>
                         <p:spacer width="5"
-                                  rendered="#{periodMovementBean.value.open and userSessionBean.isPermitted(permissions.PERIOD_MOVEMENT_UPDATE)}"/>
+                                  rendered="#{not periodMovementBean.value.accounted and userSessionBean.isPermitted(permissions.PERIOD_MOVEMENT_UPDATE)}"/>
                         <p:commandButton immediate="true"
                                          value="#{menu['pay']}"
                                          styleClass="btn btn-flat btn-warning"

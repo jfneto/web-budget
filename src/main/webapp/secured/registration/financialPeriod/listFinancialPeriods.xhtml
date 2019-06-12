@@ -1,5 +1,5 @@
 <!--
-  Copyright (C) 2015 Arthur Gregorio, AG.Software
+  Copyright (C) 2014 Arthur Gregorio, AG.Software
  
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -117,24 +117,20 @@
                                 disabled="#{not userSessionBean.isPermitted(permissions.FINANCIAL_PERIOD_DETAIL)}"/>
 
                         <p:column headerText="#{messages['financial-period.list.identification']}">
-                            <p:graphicImage width="20"
-                                            height="20"
-                                            library="webbudget"
-                                            name="images/green-circle.png"
-                                            rendered="#{not financialPeriod.closed}"
-                                            title="#{messages['financial-period.list.open']}"/>
-                            <p:graphicImage width="20"
-                                            height="20"
-                                            library="webbudget"
-                                            name="images/orange-circle.png"
-                                            rendered="#{financialPeriod.expired}"
-                                            title="#{messages['financial-period.list.expired']}"/>
-                            <p:graphicImage width="20"
-                                            height="20"
-                                            library="webbudget"
-                                            name="images/red-circle.png"
-                                            rendered="#{financialPeriod.closed}"
-                                            title="#{messages['financial-period.list.closed']}"/>
+                            <span class="badge bg-green badge-row-fix"
+                                  jsf:rendered="#{not financialPeriod.closed}">
+                                #{messages['financial-period.list.open']}
+                            </span>
+                            <span class="badge bg-red badge-row-fix"
+                                  jsf:rendered="#{financialPeriod.closed}">
+                                #{messages['financial-period.list.closed']}
+                            </span>
+                            <p:spacer width="5"
+                                      rendered="#{financialPeriod.expired and not financialPeriod.closed}"/>
+                            <span class="badge bg-orange badge-row-fix"
+                                  jsf:rendered="#{financialPeriod.expired and not financialPeriod.closed}">
+                                #{messages['financial-period.list.expired']}
+                            </span>
                             <p:spacer width="5"/>
                             #{financialPeriod.identification}
                         </p:column>
@@ -181,6 +177,13 @@
                                              styleClass="btn btn-flat btn-default"
                                              action="#{financialPeriodBean.changeToStatistics(financialPeriod.id)}"/>
                             <p:spacer width="5"
+                                      rendered="#{financialPeriod.closed and userSessionBean.isPermitted(permissions.FINANCIAL_PERIOD_REOPEN)}"/>
+                            <p:commandButton icon="fa fa-sync-alt"
+                                             title="#{menu['reopen']}"
+                                             styleClass="btn btn-flat btn-warning"
+                                             action="#{financialPeriodBean.showReopenConfirmationDialog(financialPeriod.id)}"
+                                             rendered="#{financialPeriod.closed and userSessionBean.isPermitted(permissions.FINANCIAL_PERIOD_REOPEN)}"/>
+                            <p:spacer width="5"
                                       rendered="#{not financialPeriod.closed and userSessionBean.isPermitted(permissions.CLOSING_ACCESS)}"/>
                             <p:commandButton icon="fa fa-calculator"
                                              title="#{menu['close-period']}"
@@ -200,5 +203,8 @@
             </div>
         </div>
         <wb:blocker target="boxBody"/>
+    </ui:define>
+    <ui:define name="popups">
+        <ui:include src="dialogReopeningConfirmation.xhtml"/>
     </ui:define>
 </ui:composition>
