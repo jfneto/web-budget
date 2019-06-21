@@ -16,11 +16,13 @@
  */
 package br.com.webbudget.domain.repositories.view;
 
+import br.com.webbudget.domain.entities.registration.FinancialPeriod;
 import br.com.webbudget.domain.entities.view.PeriodResult;
 import org.apache.deltaspike.data.api.EntityRepository;
 import org.apache.deltaspike.data.api.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The {@link PeriodResult} repository
@@ -39,4 +41,12 @@ public interface PeriodResultRepository extends EntityRepository<PeriodResult, L
      * @return a {@link List} with the first six results
      */
     List<PeriodResult> findTop6OrderById();
+
+    /**
+     * Find the result for a specific {@link FinancialPeriod}
+     *
+     * @param financialPeriodId to use as filter
+     * @return an {@link Optional} of the result found
+     */
+    Optional<PeriodResult> findByFinancialPeriodId(Long financialPeriodId);
 }

@@ -19,7 +19,9 @@ package br.com.webbudget.application.components.ui.filter;
 import br.com.webbudget.domain.entities.financial.PeriodMovement;
 import br.com.webbudget.domain.entities.financial.PeriodMovementState;
 import br.com.webbudget.domain.entities.financial.PeriodMovementType;
+import br.com.webbudget.domain.entities.registration.CostCenter;
 import br.com.webbudget.domain.entities.registration.FinancialPeriod;
+import br.com.webbudget.domain.entities.registration.MovementClass;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,12 +47,18 @@ public final class PeriodMovementFilter extends BasicFilter {
 
     @Setter
     @Getter
+    private CostCenter costCenter;
+    @Setter
+    @Getter
+    private MovementClass movementClass;
+    @Setter
+    @Getter
     private PeriodMovementType periodMovementType;
     @Setter
     @Getter
     private PeriodMovementState periodMovementState;
+
     @Setter
-    @Getter
     private List<FinancialPeriod> selectedFinancialPeriods;
 
     /**
@@ -65,8 +73,11 @@ public final class PeriodMovementFilter extends BasicFilter {
      */
     public void clear() {
         this.value = null;
+        this.costCenter = null;
+        this.movementClass = null;
         this.periodMovementType = null;
         this.periodMovementState = null;
+        this.selectedFinancialPeriods = new ArrayList<>();
     }
 
     /**
@@ -76,10 +87,19 @@ public final class PeriodMovementFilter extends BasicFilter {
      */
     public Optional<BigDecimal> valueToBigDecimal() {
         try {
-            return Optional.of(new BigDecimal(this.value));
+            return Optional.of(new BigDecimal(this.value.replace(",", ".")));
         } catch (Exception ex) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Getter for the {@link FinancialPeriod} selected
+     *
+     * @return a {@link List} with the selected {@link FinancialPeriod}
+     */
+    public List<FinancialPeriod> getSelectedFinancialPeriods() {
+        return this.selectedFinancialPeriods == null ? List.of() : this.selectedFinancialPeriods;
     }
 
     /**

@@ -133,11 +133,9 @@ public class Card extends PersistentEntity {
         final StringBuilder secured = new StringBuilder();
 
         if (this.number != null && this.number.length() >= 8) {
-            secured.append(this.number.substring(0, 2));
-            for (int i = 0; i < (this.number.length() - 2); i++) {
-                secured.append("*");
-            }
-            secured.append(this.number.substring(this.number.length() - 4, this.number.length()));
+            secured.append(this.number, 0, 2);
+            secured.append("*".repeat(Math.max(0, (this.number.length() - 2))));
+            secured.append(this.number.substring(this.number.length() - 4));
         } else {
             return this.number;
         }

@@ -46,9 +46,11 @@ import javax.enterprise.inject.Instance;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.com.webbudget.application.components.ui.NavigationManager.PageType.*;
 import static br.com.webbudget.application.components.ui.NavigationManager.Parameter.of;
@@ -127,6 +129,7 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
     @Override
     public void initialize() {
         super.initialize();
+        this.costCenters = this.costCenterRepository.findAllActive();
         this.financialPeriods = this.financialPeriodRepository.findAll();
         this.filter.setSelectedFinancialPeriods(this.financialPeriodRepository.findByClosed(false));
     }
@@ -179,9 +182,37 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
      */
     @Override
     public Page<PeriodMovement> load(int first, int pageSize, String sortField, SortOrder sortOrder) {
-        final Page<PeriodMovement> page = this.periodMovementRepository.findAllBy(this.filter, first, pageSize);
-        this.periodMovementResume.update(page.getContent());
-        return page;
+        this.loadResume();
+        return this.periodMovementRepository.findAllBy(this.filter, first, pageSize);
+    }
+
+    /**
+     * Load the current resume for all selected {@link FinancialPeriod}
+     */
+    public void loadResume() {
+
+        final List<Long> periods = this.filter.getSelectedFinancialPeriods().stream()
+                .map(FinancialPeriod::getId)
+                .collect(Collectors.toList());
+
+        final BigDecimal totalOpen;
+        final BigDecimal totalPaidReceived;
+        final BigDecimal totalRevenues;
+        final BigDecimal totalExpenses;
+
+        if (periods.isEmpty()) {
+            totalOpen = this.periodMovementRepository.calculateTotalOpen();
+            totalPaidReceived = this.periodMovementRepository.calculateTotalPaidAndReceived();
+            totalRevenues = this.periodMovementRepository.calculateTotalRevenues();
+            totalExpenses = this.periodMovementRepository.calculateTotalExpenses();
+        } else {
+            totalOpen = this.periodMovementRepository.calculateTotalOpen(periods);
+            totalPaidReceived = this.periodMovementRepository.calculateTotalPaidAndReceived(periods);
+            totalRevenues = this.periodMovementRepository.calculateTotalRevenues(periods);
+            totalExpenses = this.periodMovementRepository.calculateTotalExpenses(periods);
+        }
+
+        this.periodMovementResume.update(totalPaidReceived, totalOpen, totalRevenues, totalExpenses);
     }
 
     /**
@@ -222,7 +253,7 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
      */
     public String doSaveAndPay() {
         final PeriodMovement saved = this.periodMovementService.save(this.value);
-        return this.changeToPay(saved.getId());
+        return this.changeToPay(saved.getId(), ViewState.ADDING);
     }
 
     /**
@@ -232,7 +263,7 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
      */
     public String doUpdateAndPay() {
         final PeriodMovement saved = this.periodMovementService.update(this.value);
-        return this.changeToPay(saved.getId());
+        return this.changeToPay(saved.getId(), ViewState.ADDING);
     }
 
     /**
@@ -242,10 +273,24 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
      * @return the payment page
      */
     public String changeToPay(long idMovement) {
-        return this.navigation.to("formPayment.xhtml", of("id", idMovement),
-                of("viewState", ViewState.ADDING));
+        return this.changeToPay(idMovement, ViewState.EDITING);
     }
 
+    /**
+     * Change to the payment view
+     *
+     * @param idMovement the {@link PeriodMovement} id
+     * @param viewState of the payment form, if we are coming from listing view, is editing
+     * @return the payment page
+     */
+    public String changeToPay(long idMovement, ViewState viewState) {
+        return this.navigation.to("formPayment.xhtml", of("id", idMovement),
+                of("viewState", viewState));
+    }
+
+    /**
+     * Show the dialog with the payment details
+     */
     public void showPaymentDetailDialog() {
         this.updateAndOpenDialog("detailPaymentDialog", "dialogDetailPayment");
     }
@@ -304,11 +349,19 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
     }
 
     /**
-     * Event to find {@link MovementClass} filtering by the selected {@link CostCenter}
+     * Event to find {@link MovementClass} filtering by the selected {@link CostCenter}. Used on the form UI
      */
-    public void onCostCenterSelect() {
+    public void onCostCenterSelectAtForm() {
         this.movementClasses = this.movementClassRepository
-                .findByActiveAndCostCenter(true, this.apportionment.getCostCenter());
+                .findByActiveAndCostCenterOrderByNameAsc(true, this.apportionment.getCostCenter());
+    }
+
+    /**
+     * Event to find {@link MovementClass} filtering by the selected {@link CostCenter}. Used on the listing UI
+     */
+    public void onCostCenterSelectedAtListing() {
+        this.movementClasses = this.movementClassRepository
+                .findByActiveAndCostCenterOrderByNameAsc(true, this.filter.getCostCenter());
     }
 
     /**
@@ -326,7 +379,8 @@ public class PeriodMovementBean extends FormBean<PeriodMovement> implements Lazy
      */
     public void clearFilters() {
         this.filter.clear();
-        this.updateComponent("itemsList");
+        this.filter.setSelectedFinancialPeriods(this.financialPeriodRepository.findByClosed(false));
+        this.updateComponent("periodMovementGrid");
     }
 
     /**

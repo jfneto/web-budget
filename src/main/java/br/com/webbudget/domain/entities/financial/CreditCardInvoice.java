@@ -35,6 +35,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static br.com.webbudget.infrastructure.utils.DefaultSchemes.FINANCIAL;
@@ -85,12 +86,6 @@ public class CreditCardInvoice extends PersistentEntity {
 
     @Getter
     @Setter
-    @OneToOne
-    @JoinColumn(name = "id_period_movement")
-    private PeriodMovement periodMovement;
-
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "id_card")
     private Card card;
@@ -99,6 +94,12 @@ public class CreditCardInvoice extends PersistentEntity {
     @ManyToOne
     @JoinColumn(name = "id_financial_period")
     public FinancialPeriod financialPeriod;
+
+    @Getter
+    @Setter
+    @OneToOne
+    @JoinColumn(name = "id_period_movement")
+    private PeriodMovement periodMovement;
 
     @OneToMany(mappedBy = "creditCardInvoice", fetch = EAGER)
     private List<PeriodMovement> periodMovements;
@@ -234,5 +235,12 @@ public class CreditCardInvoice extends PersistentEntity {
         this.periodMovement = null;
         this.invoiceState = InvoiceState.OPEN;
         return this;
+    }
+
+    /**
+     * Method used to apply the correct order to the {@link PeriodMovement} list
+     */
+    public void orderPeriodMovements() {
+        this.periodMovements.sort(Comparator.comparing(PeriodMovement::getPaymentDate));
     }
 }
