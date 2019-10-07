@@ -17,8 +17,11 @@
 package br.com.webbudget.application.controller.financial;
 
 import br.com.webbudget.application.components.ui.AbstractBean;
+import br.com.webbudget.application.components.ui.filter.TransferenceFilter;
 import br.com.webbudget.domain.entities.financial.Transference;
+import br.com.webbudget.domain.entities.registration.Wallet;
 import br.com.webbudget.domain.repositories.financial.TransferenceRepository;
+import br.com.webbudget.domain.repositories.registration.WalletRepository;
 import lombok.Getter;
 
 import javax.faces.view.ViewScoped;
@@ -44,8 +47,15 @@ public class TransferenceHistoricBean extends AbstractBean {
     private List<Transference> transfers;
 
     @Getter
+    private TransferenceFilter filter;
+
+    @Getter
+    private List<Wallet> wallets;
+    @Getter
     private List<LocalDate> transferenceDates;
 
+    @Inject
+    private WalletRepository walletRepository;
     @Inject
     private TransferenceRepository transferenceRepository;
 
@@ -53,8 +63,25 @@ public class TransferenceHistoricBean extends AbstractBean {
      * Initialize this controller
      */
     public void initialize() {
-        this.transfers = this.transferenceRepository.findAll();
+        this.filter = new TransferenceFilter();
+        this.wallets = this.walletRepository.findAll();
+        this.filterList();
+    }
+
+    /**
+     * Filter all transference according to the filter selection
+     */
+    public void filterList() {
+        this.transfers = this.transferenceRepository.findByFilter(this.filter);
         this.processTransferenceDates();
+    }
+
+    /**
+     * Clear the filter selection on the UI
+     */
+    public void clearFilter() {
+        this.filter.clear();
+        this.filterList();
     }
 
     /**
@@ -80,5 +107,14 @@ public class TransferenceHistoricBean extends AbstractBean {
                 .filter(balance -> balance.getTransferDate().equals(transferenceDate))
                 .sorted(Comparator.comparing(Transference::getTransferDate).reversed())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Change back to the transference form
+     *
+     * @return outcome to the transference form
+     */
+    public String changeToForm() {
+        return "formTransference.xhtml?faces-redirect=true";
     }
 }

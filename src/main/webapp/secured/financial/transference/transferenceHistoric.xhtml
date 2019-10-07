@@ -43,7 +43,62 @@
     </ui:define>
 
     <ui:define name="content">
-        <div class="box-empty">
+        <h:form>
+            <div class="box box-#{profileBean.currentThemeColorName}">
+                <div class="box-header with-border">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <p:selectOneMenu converter="omnifaces.SelectItemsConverter"
+                                             value="#{transferenceHistoricBean.filter.originWallet}">
+                                <f:selectItem itemValue="#{null}"
+                                              noSelectionOption="true"
+                                              itemLabel="#{messages['transference-historic.select-origin']}"/>
+                                <f:selectItems var="wallet"
+                                               itemValue="#{wallet}"
+                                               itemLabel="#{wallet.fullName}"
+                                               value="#{transferenceHistoricBean.wallets}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="col-xs-3">
+                            <p:selectOneMenu converter="omnifaces.SelectItemsConverter"
+                                             value="#{transferenceHistoricBean.filter.destinationWallet}">
+                                <f:selectItem itemValue="#{null}"
+                                              noSelectionOption="true"
+                                              itemLabel="#{messages['transference-historic.select-destination']}"/>
+                                <f:selectItems var="wallet"
+                                               itemValue="#{wallet}"
+                                               itemLabel="#{wallet.fullName}"
+                                               value="#{transferenceHistoricBean.wallets}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="col-md-3">
+                            <p:calendar mask="true"
+                                        pattern="dd/MM/yyyy"
+                                        converter="localDateConverter"
+                                        value="#{transferenceHistoricBean.filter.operationDate}"
+                                        placeholder="#{messages['transference-historic.operation-date']}"/>
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <p:commandButton update="boxBody"
+                                             value="#{menu['filter']}"
+                                             styleClass="btn btn-flat btn-success"
+                                             action="#{transferenceHistoricBean.filterList()}"/>
+                            <p:spacer width="5"/>
+                            <p:commandButton update="boxBody"
+                                             icon="fa fa-trash"
+                                             title="#{menu['filter-clear']}"
+                                             styleClass="btn btn-flat btn-danger"
+                                             action="#{transferenceHistoricBean.clearFilter()}"/>
+                            <p:spacer width="5"/>
+                            <p:commandButton value="#{menu['back']}"
+                                             styleClass="btn btn-flat btn-primary"
+                                             action="#{transferenceHistoricBean.changeToForm()}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+        <div jsf:id="boxBody" class="box-empty">
             <div class="row">
                 <div class="col-md-12 text-center"
                      jsf:rendered="#{empty transferenceHistoricBean.transferenceDates}">
@@ -83,21 +138,22 @@
                                             <span class="text-bold">#{messages['transference-historic.list.value']}:</span>
                                             <p:spacer width="5"/>
                                             <h:outputText value="#{transference.value}">
-                                                <f:convertNumber pattern="¤#,##0.00" currencySymbol="R$ " />
+                                                <f:convertNumber pattern="¤#,##0.00" currencySymbol="R$ "/>
                                             </h:outputText>
                                         </h3>
                                         <div class="timeline-body">
                                             <div class="row">
                                                 <div class="col-sm-4 form-group">
-                                                    <p:outputLabel value="#{messages['transference-historic.list.origin']}:"/>
+                                                    <p:outputLabel
+                                                            value="#{messages['transference-historic.list.origin']}:"/>
                                                     <br/>
-                                                    #{transference.origin.description}
+                                                    #{transference.origin.fullName}
                                                 </div>
                                                 <div class="col-sm-4 form-group">
                                                     <p:outputLabel
                                                             value="#{messages['transference-historic.list.destination']}:"/>
                                                     <br/>
-                                                    #{transference.destination.description}
+                                                    #{transference.destination.fullName}
                                                 </div>
                                             </div>
                                             <div class="row"

@@ -42,10 +42,10 @@ import static br.com.webbudget.infrastructure.utils.DefaultSchemes.REGISTRATION_
  */
 @Entity
 @Audited
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @Table(name = "wallets", schema = REGISTRATION)
 @AuditTable(value = "wallets", schema = REGISTRATION_AUDIT)
+@ToString(callSuper = true, of = {"name", "walletType", "bank"})
+@EqualsAndHashCode(callSuper = true, of = {"name", "walletType", "bank"})
 public class Wallet extends PersistentEntity {
 
     @Getter
@@ -69,6 +69,7 @@ public class Wallet extends PersistentEntity {
     @Setter
     @Column(name = "digit", length = 4)
     private String digit;
+    @Getter
     @Setter
     @Column(name = "description")
     private String description;
@@ -98,11 +99,11 @@ public class Wallet extends PersistentEntity {
     }
 
     /**
-     * Create a better description to this wallet using the bank account information if is available
+     * Create a better name to this wallet using the bank account information if available
      *
-     * @return the description of this wallet
+     * @return the full name of this wallet
      */
-    public String getDescription() {
+    public String getFullName() {
         return this.walletType == WalletType.BANK_ACCOUNT ? this.name + " - " + this.bank : this.name;
     }
 
