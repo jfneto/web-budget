@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
- * The controller of the recover password process
+ * Recover password controller
  *
  * @author Arthur Gregorio
  *
@@ -49,7 +49,7 @@ public class RecoverPasswordBean extends AbstractBean {
      */
     public void recoverPassword() {
 
-//        this.recoverPasswordService.recover(this.email);
+        this.recoverPasswordService.recover(this.email);
 
         this.closeDialog("dialogRecoverPassword");
         this.addInfoAndKeep("recover-password.email-sent");
